@@ -49,12 +49,13 @@ function showUpload() {
     if (!localStorage.getItem('token')) return showAuth();
     hideAllViews();
     
-    // RESET STATE for new screening
-    document.getElementById('file-input').value = '';
-    document.getElementById('processing-view').classList.add('hidden-view');
-    document.getElementById('preview-card').classList.add('hidden-view');
     document.getElementById('process-fill').style.width = '0%';
     document.getElementById('process-percentage').textContent = '0%';
+    
+    // Clear Intake Name
+    if (document.getElementById('patient-name-input')) {
+        document.getElementById('patient-name-input').value = '';
+    }
     
     document.getElementById('view-upload').classList.remove('hidden-view');
 }
@@ -274,14 +275,9 @@ fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) han
 async function handleFile(file) {
     if (!file.type.startsWith('image/')) return alert("Upload valid image.");
     
+    const patientName = document.getElementById('patient-name-input').value.trim();
+    
     processView.classList.remove('hidden-view');
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        document.getElementById('preview-img').src = e.target.result;
-        document.getElementById('preview-filename').textContent = file.name;
-        document.getElementById('preview-card').classList.remove('hidden-view');
-    };
-    reader.readAsDataURL(file);
 
     let progress = 0;
     const interval = setInterval(() => {
@@ -294,6 +290,7 @@ async function handleFile(file) {
 
     const formData = new FormData();
     formData.append("file", file);
+    if (patientName) formData.append("patient_name", patientName);
 
     try {
         const token = localStorage.getItem('token');
@@ -329,6 +326,10 @@ function renderResults(data) {
     document.getElementById('result-confidence').textContent = `${data.confidence.toFixed(1)}%`;
     document.getElementById('confidence-bar').style.width = `${data.confidence}%`;
     document.getElementById('result-class-id').textContent = `AI CLASS: ${data.class}`;
+    
+    if (data.patient_name) {
+        document.getElementById('result-patient-name').textContent = data.patient_name;
+    }
 
     const badge = document.getElementById('risk-badge');
     badge.textContent = `${data.risk.toUpperCase()} RISK`;
@@ -366,6 +367,11 @@ async function generatePDF() {
     badge.textContent = `${lastResult.risk.toUpperCase()} RISK`;
     badge.style.backgroundColor = lastResult.risk === "High" ? "#ba1a1a" : (lastResult.risk === "Moderate" ? "#ffa500" : "#006a61");
 
+    // Populate dynamic patient name
+    if (lastResult.patient_name) {
+        document.getElementById('pdf-patient-name').textContent = lastResult.patient_name;
+    }
+
     // PDF Options
     const opt = {
         margin:       0.5,
@@ -385,6 +391,12 @@ async function generatePDF() {
     } finally {
         template.classList.add('hidden-view');
     }
+}
+
+function addToRecord() {
+    // Record is already saved in DB upon prediction.
+    // This action finalize user awareness and returns to dashboard.
+    showDashboard();
 }
 
 // Start

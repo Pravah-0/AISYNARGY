@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Depends, HTTPException, status
+from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -96,7 +96,7 @@ def read_screenings(skip: int = 0, limit: int = 100, current_user: models.User =
     return screenings
 
 @app.post("/predict")
-async def predict_endpoint(file: UploadFile = File(...), current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def predict_endpoint(file: UploadFile = File(...), patient_name: str = Form(None), current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Accepts an image file and returns prediction + base64 encoded XAI heatmaps.
     Saves to the database tied to the logged-in user.
@@ -110,9 +110,11 @@ async def predict_endpoint(file: UploadFile = File(...), current_user: models.Us
         
         # Save to DB
         is_patient = current_user.role == "patient"
+        final_patient_name = patient_name if (patient_name and not is_patient) else (current_user.name if is_patient else "Anonymous Patient")
+        
         new_screening = models.Screening(
             patient_id="SR-" + str(int(datetime.now().timestamp() % 10000)),
-            patient_name=current_user.name if is_patient else "Anonymous Patient",
+            patient_name=final_patient_name,
             severity=results["severity"],
             risk=results["risk"],
             confidence=results["confidence"],
