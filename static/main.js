@@ -52,9 +52,12 @@ function showUpload() {
     document.getElementById('process-fill').style.width = '0%';
     document.getElementById('process-percentage').textContent = '0%';
     
-    // Clear Intake Name
+    // Clear Intake Name & Preview
     if (document.getElementById('patient-name-input')) {
         document.getElementById('patient-name-input').value = '';
+    }
+    if (document.getElementById('preview-container')) {
+        document.getElementById('preview-container').classList.add('hidden-view');
     }
     
     document.getElementById('view-upload').classList.remove('hidden-view');
@@ -270,13 +273,32 @@ const processPercent = document.getElementById('process-percentage');
 dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-on-primary-container', 'bg-primary-fixed/10'); });
 dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('border-on-primary-container', 'bg-primary-fixed/10'); });
 dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('border-on-primary-container', 'bg-primary-fixed/10'); if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]); });
-fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) handleFile(e.target.files[0]); });
+fileInput.addEventListener('change', (e) => { 
+    if (e.target.files.length > 0) {
+        console.log("File detected via input change");
+        handleFile(e.target.files[0]);
+    }
+});
 
 async function handleFile(file) {
-    if (!file.type.startsWith('image/')) return alert("Upload valid image.");
+    if (!file) return;
+    console.log("handleFile triggered for:", file.name);
+    
+    if (!file.type.startsWith('image/')) {
+        alert("Please upload a valid image file.");
+        return;
+    }
     
     const patientName = document.getElementById('patient-name-input').value.trim();
     
+    // Restore Preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        document.getElementById('preview-img').src = e.target.result;
+        document.getElementById('preview-container').classList.remove('hidden-view');
+    };
+    reader.readAsDataURL(file);
+
     processView.classList.remove('hidden-view');
 
     let progress = 0;

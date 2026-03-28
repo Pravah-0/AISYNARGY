@@ -299,18 +299,10 @@
         <!-- ============================================== -->
         <!-- VIEW 2: UPLOAD                                 -->
         <!-- ============================================== -->
-        <main id="view-upload" class="max-w-6xl mx-auto hidden-view">
-            <header class="mb-12">
-                <p class="text-xs font-bold text-on-primary-container tracking-[0.15em] uppercase mb-2">Diagnostic Intake</p>
-                <h1 class="text-5xl font-black text-primary tracking-tighter leading-none mb-4">Retinal Fundus Upload</h1>
-                <p class="text-on-surface-variant max-w-xl text-lg leading-relaxed">
-                    Upload high-resolution scans for neural network processing. Our clinical AI analyzes retinal vasculature in real-time.
-                </p>
-            </header>
-        <main id="view-upload" class="max-w-4xl mx-auto hidden-view">
+        <main id="view-upload" class="max-w-4xl mx-auto hidden-view pt-12">
             <header class="mb-10 text-center">
-                <h1 class="text-4xl font-black text-on-surface tracking-tighter mb-3">Retinal Intake</h1>
-                <p class="text-on-surface-variant">Perform a new neural diagnostic screening.</p>
+                <h1 class="text-5xl font-black text-on-surface tracking-tighter mb-3 leading-none">Diagnostic Intake</h1>
+                <p class="text-on-surface-variant text-lg">Perform a new neural diagnostic screening.</p>
             </header>
 
             <div class="bg-surface-container-lowest rounded-[2rem] p-10 shadow-sm border border-outline-variant/10">
@@ -321,7 +313,7 @@
                 </div>
 
                 <div id="drop-zone" class="border-2 border-dashed border-outline-variant rounded-3xl p-16 text-center hover:border-primary-container hover:bg-primary-fixed/5 transition-all group cursor-pointer relative overflow-hidden">
-                    <input type="file" id="file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" accept="image/*"/>
+                    <input type="file" id="file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" accept="image/*" onchange="handleFile(this.files[0])"/>
                     <div class="absolute inset-0 bg-primary-fixed/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <div class="relative z-10">
                         <div class="w-20 h-20 bg-surface-container-high rounded-full flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
@@ -330,10 +322,18 @@
                         <h3 class="text-2xl font-bold text-on-surface mb-2">Drop clinical images here</h3>
                         <p class="text-on-surface-variant mb-8 max-w-xs mx-auto">Supports DICOM, high-res JPG, and lossless PNG formats from fundus cameras.</p>
                         <div class="flex flex-wrap justify-center gap-3 pointer-events-none">
-                            <button class="bg-on-primary-container text-white px-8 py-3 rounded-full font-bold transition-all shadow-xl">
+                            <button type="button" class="bg-on-primary-container text-white px-8 py-3 rounded-full font-bold transition-all shadow-xl">
                                 Select Files
                             </button>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Preview Area (New) -->
+                <div id="preview-container" class="mt-8 hidden-view flex flex-col items-center">
+                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-3">Selected Fundus Scan</p>
+                    <div class="relative w-64 aspect-square rounded-2xl overflow-hidden border-4 border-surface-container-high shadow-xl">
+                        <img id="preview-img" class="w-full h-full object-cover" src="">
                     </div>
                 </div>
             </div>
