@@ -1,6 +1,7 @@
 // --- STATE & UTILS ---
 let isLoggingIn = true;
 let currentUser = null;
+let lastResult = null;
 
 function hideAllViews() {
     document.getElementById('view-auth').classList.add('hidden-view');
@@ -31,6 +32,16 @@ function showDashboard() {
     document.getElementById('main-content-area').style.marginLeft = "16rem";
     document.getElementById('nav-dashboard').classList.add('border-teal-600', 'text-teal-700', 'border-b-2');
     document.getElementById('nav-dashboard').classList.remove('text-slate-500');
+    
+    // Role-based UI Customization
+    const isDoctor = currentUser && currentUser.role === 'doctor';
+    document.getElementById('dashboard-title').textContent = isDoctor ? "Clinical Dashboard" : "Health Overview";
+    document.getElementById('dashboard-subtitle').textContent = isDoctor ? "Real-time diabetic retinopathy screening overview." : "Your personal retinal health and diagnostic history.";
+    document.getElementById('table-title').textContent = isDoctor ? "Recent Patient Screenings" : "Your Screening History";
+    
+    // Hide/Show Doctor-specific sidebar items if needed
+    // (Could add more specific side-nav IDs to index.html for this)
+
     fetchDashboardData();
 }
 
@@ -56,6 +67,29 @@ function showResults() {
 
 // --- AUTH LOGIC ---
 
+let selectedRole = 'doctor';
+
+function setAuthRole(role) {
+    selectedRole = role;
+    const docBtn = document.getElementById('role-btn-doctor');
+    const patBtn = document.getElementById('role-btn-patient');
+    const patientFields = document.getElementById('auth-patient-fields');
+
+    if (role === 'doctor') {
+        docBtn.classList.add('bg-primary-container', 'text-white', 'border-primary-container');
+        docBtn.classList.remove('border-outline-variant', 'text-on-surface-variant');
+        patBtn.classList.remove('bg-primary-container', 'text-white', 'border-primary-container');
+        patBtn.classList.add('border-outline-variant', 'text-on-surface-variant');
+        patientFields.classList.add('hidden');
+    } else {
+        patBtn.classList.add('bg-primary-container', 'text-white', 'border-primary-container');
+        patBtn.classList.remove('border-outline-variant', 'text-on-surface-variant');
+        docBtn.classList.remove('bg-primary-container', 'text-white', 'border-primary-container');
+        docBtn.classList.add('border-outline-variant', 'text-on-surface-variant');
+        patientFields.classList.remove('hidden');
+    }
+}
+
 function toggleAuthMode() {
     isLoggingIn = !isLoggingIn;
     const title = document.getElementById('auth-title');
@@ -64,19 +98,25 @@ function toggleAuthMode() {
     const btnText = document.getElementById('auth-btn-text');
     const switchText = document.getElementById('auth-switch-text');
     const switchAction = document.getElementById('auth-switch-action');
+    const roleContainer = document.getElementById('auth-role-container');
+    const patientFields = document.getElementById('auth-patient-fields');
 
     if (isLoggingIn) {
         title.textContent = "Welcome Back";
-        subtitle.textContent = "Sign in to access patient screenings.";
+        subtitle.textContent = "Sign in to access your screenings.";
         nameInput.classList.add('hidden');
+        roleContainer.classList.add('hidden');
+        patientFields.classList.add('hidden');
         btnText.textContent = "Sign In";
         switchText.textContent = "Don't have an account?";
         switchAction.textContent = "Sign up";
     } else {
         title.textContent = "Create Account";
-        subtitle.textContent = "Join the clinical retina network.";
+        subtitle.textContent = "Join the healthcare network.";
         nameInput.classList.remove('hidden');
-        btnText.textContent = "Register Doctor";
+        roleContainer.classList.remove('hidden');
+        setAuthRole(selectedRole); // ensure correct fields show
+        btnText.textContent = "Sign Up";
         switchText.textContent = "Already have an account?";
         switchAction.textContent = "Sign in";
     }
@@ -90,9 +130,9 @@ async function handleAuthSubmit(e) {
 
     try {
         if (isLoggingIn) {
-            // Login logic
+            // ... (keep login logic same)
             const formData = new URLSearchParams();
-            formData.append('username', email); // OAuth2 expects username
+            formData.append('username', email);
             formData.append('password', password);
 
             const res = await fetch('/login', {
@@ -107,10 +147,22 @@ async function handleAuthSubmit(e) {
             checkAuth();
         } else {
             // Signup logic
+            const age = document.getElementById('auth-age').value;
+            const diabetes = document.getElementById('auth-diabetes').value;
+            
+            const payload = { 
+                email, 
+                password, 
+                name, 
+                role: selectedRole,
+                age: selectedRole === 'patient' ? parseInt(age) : null,
+                diabetes_type: selectedRole === 'patient' ? diabetes : null
+            };
+
             const res = await fetch('/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, name })
+                body: JSON.stringify(payload)
             });
 
             if (!res.ok) throw new Error("Registration failed");
@@ -137,7 +189,8 @@ async function checkAuth() {
         if (!res.ok) throw new Error("Session expired");
         
         currentUser = await res.json();
-        const displayName = currentUser.name.toLowerCase().startsWith('dr.') ? currentUser.name : `Dr. ${currentUser.name}`;
+        const displayName = (currentUser.role === 'doctor' && !currentUser.name.toLowerCase().startsWith('dr.')) 
+                            ? `Dr. ${currentUser.name}` : currentUser.name;
         document.getElementById('user-profile-name').textContent = displayName;
         showDashboard();
     } catch (err) {
@@ -252,6 +305,7 @@ async function handleFile(file) {
 
         if (!res.ok) throw new Error("Analysis failed");
         const data = await res.json();
+        lastResult = data; // Cache for PDF export
         
         clearInterval(interval);
         processBar.style.width = "100%";
@@ -281,6 +335,56 @@ function renderResults(data) {
     badge.className = "px-3 py-1.5 rounded-full font-bold text-xs uppercase tracking-wider " + 
                      (data.risk === "High" ? "bg-error text-on-error" : 
                      (data.risk === "Moderate" ? "bg-[orange] text-white" : "bg-on-primary-container text-on-primary"));
+}
+
+// --- PDF GENERATION ---
+async function generatePDF() {
+    if (!lastResult) return alert("No screening results found to export.");
+
+    const template = document.getElementById('pdf-template');
+    
+    // Populate template
+    document.getElementById('pdf-date').textContent = new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+    });
+    document.getElementById('pdf-report-id').textContent = Math.random().toString(36).substr(2, 9).toUpperCase();
+    document.getElementById('pdf-patient-name').textContent = currentUser.role === 'patient' ? currentUser.name : "Anonymous Patient";
+    
+    let meta = "";
+    if (currentUser.role === 'patient') {
+        meta = `Age: ${currentUser.age || 'N/A'} | Diabetes: ${currentUser.diabetes_type || 'None'}`;
+    }
+    document.getElementById('pdf-patient-meta').textContent = meta;
+    document.getElementById('pdf-doctor-name').textContent = currentUser.role === 'doctor' ? `Dr. ${currentUser.name}` : "Automated AI Screening";
+    
+    document.getElementById('pdf-heatmap').src = lastResult.overlay;
+    document.getElementById('pdf-severity').textContent = lastResult.severity;
+    document.getElementById('pdf-confidence').textContent = `${lastResult.confidence.toFixed(1)}%`;
+    document.getElementById('pdf-message').textContent = lastResult.message;
+    
+    const badge = document.getElementById('pdf-risk-badge');
+    badge.textContent = `${lastResult.risk.toUpperCase()} RISK`;
+    badge.style.backgroundColor = lastResult.risk === "High" ? "#ba1a1a" : (lastResult.risk === "Moderate" ? "#ffa500" : "#006a61");
+
+    // PDF Options
+    const opt = {
+        margin:       0.5,
+        filename:     `Retina_AI_Report_${document.getElementById('pdf-report-id').textContent}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    // Show template briefly, generate, and hide
+    template.classList.remove('hidden-view');
+    try {
+        await html2pdf().set(opt).from(template).save();
+    } catch (err) {
+        console.error("PDF Generation failed", err);
+        alert("Failed to generate PDF. Please try again.");
+    } finally {
+        template.classList.add('hidden-view');
+    }
 }
 
 // Start

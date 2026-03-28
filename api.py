@@ -53,7 +53,14 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     hashed_password = auth.get_password_hash(user.password)
-    db_user = models.User(email=user.email, name=user.name, hashed_password=hashed_password)
+    db_user = models.User(
+        email=user.email, 
+        name=user.name, 
+        hashed_password=hashed_password,
+        role=user.role,
+        age=user.age,
+        diabetes_type=user.diabetes_type
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -80,7 +87,12 @@ def read_users_me(current_user: models.User = Depends(get_current_user)):
 
 @app.get("/screenings", response_model=list[schemas.ScreeningResponse])
 def read_screenings(skip: int = 0, limit: int = 100, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
-    screenings = db.query(models.Screening).filter(models.Screening.doctor_id == current_user.id).order_by(models.Screening.id.desc()).offset(skip).limit(limit).all()
+    if current_user.role == "doctor":
+        query = db.query(models.Screening).filter(models.Screening.doctor_id == current_user.id)
+    else:
+        query = db.query(models.Screening).filter(models.Screening.patient_user_id == current_user.id)
+    
+    screenings = query.order_by(models.Screening.id.desc()).offset(skip).limit(limit).all()
     return screenings
 
 @app.post("/predict")
@@ -97,14 +109,16 @@ async def predict_endpoint(file: UploadFile = File(...), current_user: models.Us
         del results['original_cv']
         
         # Save to DB
+        is_patient = current_user.role == "patient"
         new_screening = models.Screening(
             patient_id="SR-" + str(int(datetime.now().timestamp() % 10000)),
-            patient_name="Anonymous Patient",
+            patient_name=current_user.name if is_patient else "Anonymous Patient",
             severity=results["severity"],
             risk=results["risk"],
             confidence=results["confidence"],
             message=results["message"],
-            doctor_id=current_user.id
+            doctor_id=None if is_patient else current_user.id,
+            patient_user_id=current_user.id if is_patient else None
         )
         db.add(new_screening)
         db.commit()

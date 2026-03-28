@@ -16,7 +16,8 @@ class ScreeningCreate(ScreeningBase):
 class ScreeningResponse(ScreeningBase):
     id: int
     date: datetime
-    doctor_id: int
+    doctor_id: Optional[int] = None
+    patient_user_id: Optional[int] = None
 
     class Config:
         from_attributes = True
@@ -24,6 +25,9 @@ class ScreeningResponse(ScreeningBase):
 class UserBase(BaseModel):
     email: str
     name: str
+    role: str = "doctor"
+    age: Optional[int] = None
+    diabetes_type: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str

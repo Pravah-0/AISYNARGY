@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -160,8 +161,32 @@
             
             <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="flex flex-col gap-4">
                 <input type="text" id="auth-name" placeholder="Full Name" class="hidden rounded-xl border-outline-variant focus:ring-primary-container px-4 py-3 bg-surface-container-low" />
-                <input type="email" id="auth-email" placeholder="Doctor Email" required class="rounded-xl border-outline-variant focus:ring-primary-container px-4 py-3 bg-surface-container-low" />
+                <input type="email" id="auth-email" placeholder="Email Address" required class="rounded-xl border-outline-variant focus:ring-primary-container px-4 py-3 bg-surface-container-low" />
                 <input type="password" id="auth-password" placeholder="Password" required class="rounded-xl border-outline-variant focus:ring-primary-container px-4 py-3 bg-surface-container-low" />
+                
+                <!-- Role Selection (Signup Only) -->
+                <div id="auth-role-container" class="hidden flex flex-col gap-3 mt-2">
+                    <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Select your role</p>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="setAuthRole('doctor')" id="role-btn-doctor" class="flex-1 py-2 rounded-lg border-2 border-primary-container bg-primary-container text-white font-bold text-xs uppercase transition shadow-sm">Doctor</button>
+                        <button type="button" onclick="setAuthRole('patient')" id="role-btn-patient" class="flex-1 py-2 rounded-lg border-2 border-outline-variant text-on-surface-variant font-bold text-xs uppercase transition">Patient</button>
+                    </div>
+                </div>
+
+                <!-- Patient Specific Fields (Signup Only) -->
+                <div id="auth-patient-fields" class="hidden flex gap-4 mt-2">
+                    <div class="flex-1">
+                        <input type="number" id="auth-age" placeholder="Age" class="w-full rounded-xl border-outline-variant focus:ring-primary-container px-4 py-3 bg-surface-container-low" />
+                    </div>
+                    <div class="flex-[2]">
+                        <select id="auth-diabetes" class="w-full rounded-xl border-outline-variant focus:ring-primary-container px-4 py-3 bg-surface-container-low">
+                            <option value="" disabled selected>Diabetes Type</option>
+                            <option value="Type 1">Type 1</option>
+                            <option value="Type 2">Type 2</option>
+                            <option value="None">None / Other</option>
+                        </select>
+                    </div>
+                </div>
                 
                 <button type="submit" class="mt-4 bg-primary-container text-white py-3 rounded-xl font-bold hover:bg-primary-fixed hover:text-on-primary-fixed transition shadow-md">
                     <span id="auth-btn-text">Sign In</span>
@@ -180,8 +205,8 @@
         <main id="view-dashboard" class="max-w-7xl mx-auto hidden-view">
             <header class="mb-12 flex justify-between items-end">
                 <div>
-                    <h1 class="text-5xl font-black text-on-surface tracking-tighter mb-2">Diagnostic Dashboard</h1>
-                    <p class="text-on-surface-variant text-lg">Real-time diabetic retinopathy screening overview.</p>
+                    <h1 id="dashboard-title" class="text-5xl font-black text-on-surface tracking-tighter mb-2">Diagnostic Dashboard</h1>
+                    <p id="dashboard-subtitle" class="text-on-surface-variant text-lg">Real-time diabetic retinopathy screening overview.</p>
                 </div>
                 <div class="flex gap-4">
                     <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/10 shadow-sm flex items-center gap-4">
@@ -231,7 +256,7 @@
                 <div class="col-span-12 lg:col-span-8">
                     <div class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm">
                         <div class="px-8 py-6 flex justify-between items-center bg-surface-container-low/30">
-                            <h2 class="text-xl font-extrabold tracking-tight">Recent Patient Screenings</h2>
+                            <h2 id="table-title" class="text-xl font-extrabold tracking-tight">Recent Patient Screenings</h2>
                             <button class="text-sm font-bold text-on-primary-container flex items-center gap-1">
                                 View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
                             </button>
@@ -394,7 +419,7 @@
                     <h1 class="text-5xl font-black text-on-surface tracking-tighter mb-2">Analysis Results</h1>
                 </div>
                 <div class="flex gap-4">
-                    <button class="px-6 py-3 rounded-xl border border-outline-variant bg-surface-container-lowest font-bold text-on-surface hover:bg-surface-container-low transition">Print Report</button>
+                    <button onclick="generatePDF()" class="px-6 py-3 rounded-xl border border-outline-variant bg-surface-container-lowest font-bold text-on-surface hover:bg-surface-container-low transition">Print Report</button>
                     <button class="px-6 py-3 rounded-xl bg-primary-container text-white font-bold hover:bg-primary-fixed hover:text-on-primary-fixed transition">Add to Record</button>
                 </div>
             </header>
@@ -447,6 +472,63 @@
                 </div>
             </div>
         </main>
+
+        <!-- PDF EXPORT TEMPLATE (Hidden from UI) -->
+        <div id="pdf-template" class="hidden-view bg-white p-12 text-slate-900" style="width: 800px; font-family: 'Inter', sans-serif;">
+            <div class="flex justify-between items-start border-b-2 border-slate-200 pb-8 mb-8">
+                <div>
+                    <h1 class="text-3xl font-black text-indigo-900 tracking-tighter">Retina Ai - Sight Decoded</h1>
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Clinical Diagnostic Report v4.2</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-bold" id="pdf-date"></p>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest">Report ID: #<span id="pdf-report-id"></span></p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-12 mb-12">
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Patient Information</p>
+                    <h2 class="text-2xl font-bold" id="pdf-patient-name"></h2>
+                    <p class="text-sm text-slate-600" id="pdf-patient-meta"></p>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Attending Specialist</p>
+                    <h2 class="text-xl font-bold" id="pdf-doctor-name"></h2>
+                    <p class="text-sm text-slate-600">Central Retina Clinic Operations</p>
+                </div>
+            </div>
+
+            <div class="mb-12">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">Neural Diagnostic Imaging (XAI Heatmap)</p>
+                <div class="bg-black rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-100 mx-auto max-w-lg">
+                    <img id="pdf-heatmap" class="w-full object-contain" src="">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 bg-slate-50 p-8 rounded-3xl border border-slate-100">
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">AI Diagnostic Result</p>
+                    <h3 class="text-4xl font-black text-indigo-950" id="pdf-severity"></h3>
+                    <div class="flex items-center gap-2 mt-2">
+                        <span id="pdf-risk-badge" class="px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-wider"></span>
+                        <span class="text-sm font-bold text-slate-500">AI Confidence: <span id="pdf-confidence"></span></span>
+                    </div>
+                </div>
+                <div class="h-px bg-slate-200 w-full"></div>
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Clinical Observations</p>
+                    <p class="text-sm text-slate-700 leading-relaxed font-medium" id="pdf-message"></p>
+                </div>
+            </div>
+
+            <div class="mt-12 pt-8 border-t border-slate-200 text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">CONFIDENTIAL MEDICAL RECORD</p>
+                <p class="text-[8px] text-slate-400 max-w-lg mx-auto leading-relaxed">
+                    This report was generated using Artificial Intelligence (Retina Ai Platform). It provides a preliminary screening analysis and does not constitute a final medical diagnosis. All findings must be reviewed by a board-certified ophthalmologist.
+                </p>
+            </div>
+        </div>
     </div>
 
     <script src="main.js"></script>
