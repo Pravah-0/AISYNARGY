@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Retina Ai - Sight Decoded | Clinical Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-high": "#e6e8ea",
+                        "tertiary": "#000c1d",
+                        "primary-container": "#002723",
+                        "secondary-fixed-dim": "#c4c1fb",
+                        "on-primary-container": "#1a998d",
+                        "background": "#f7f9fb",
+                        "on-error": "#ffffff",
+                        "primary": "#000e0c",
+                        "on-secondary-fixed-variant": "#444173",
+                        "inverse-surface": "#2d3133",
+                        "on-primary-fixed": "#00201d",
+                        "secondary-container": "#c7c3fe",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "surface-bright": "#f7f9fb",
+                        "primary-fixed": "#89f5e7",
+                        "secondary-fixed": "#e3dfff",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#d3e4fe",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#47464f",
+                        "primary-fixed-dim": "#6bd8cb",
+                        "inverse-primary": "#6bd8cb",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#122336",
+                        "surface-container": "#eceef0",
+                        "on-primary-fixed-variant": "#005049",
+                        "on-secondary-container": "#514f81",
+                        "surface": "#f7f9fb",
+                        "error": "#ba1a1a",
+                        "outline-variant": "#c8c5d0",
+                        "outline": "#787680",
+                        "secondary": "#5b598c",
+                        "surface-container-low": "#f2f4f6",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "surface-tint": "#006a61",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e0e3e5",
+                        "on-secondary-fixed": "#181445",
+                        "surface-dim": "#d8dadc",
+                        "on-tertiary-container": "#7a8aa2",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#191c1e"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
+        .clinical-gradient {
+            background: linear-gradient(to bottom, #1a998d, #006a61);
+        }
+        .clinical-gradient-primary {
+            background: linear-gradient(to bottom, #1a998d, #006a61);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hidden-view { display: none !important; }
+    </style>
+</head>
+<body class="text-on-surface antialiased">
+    <!-- TopNavBar -->
+    <nav id="top-nav" class="fixed top-0 left-0 right-0 z-50 bg-slate-50 dark:bg-slate-900 flex justify-between items-center w-full px-12 py-4 max-w-full tracking-tight leading-relaxed hidden-view">
+        <div class="flex items-center gap-12">
+            <span class="text-2xl font-black text-indigo-900 dark:text-indigo-100 tracking-tighter cursor-pointer" onclick="showDashboard()">Retina Ai - Sight Decoded</span>
+            <div class="hidden md:flex gap-8 nav-buttons">
+                <a id="nav-dashboard" class="text-teal-700 font-bold border-b-2 border-teal-600 pb-1 cursor-pointer" onclick="showDashboard()">Dashboard</a>
+                <a class="text-slate-500 hover:text-teal-600 transition-colors cursor-pointer">Patients</a>
+                <a class="text-slate-500 hover:text-teal-600 transition-colors cursor-pointer">History</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="relative hidden lg:block">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input class="bg-slate-100 border-none rounded-full pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-on-primary-container w-64" placeholder="Search records..." type="text"/>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p id="user-profile-name" class="text-sm font-semibold text-teal-600">Loading...</p>
+                    <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Central Retina Clinic <a href="#" onclick="logout()" class="text-error underline ml-2">Logout</a></p>
+                </div>
+                <img alt="Dr. Smith" class="w-10 h-10 rounded-full object-cover ring-2 ring-surface-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVeuFLCAVOlTfqSe4E_JpkoLNZmSPpxDDDUADlx3lH7wU81op_UY10r2vsMafc974ezbDrHh9sH1lQ-A2MBVoJQIomVGc-U4cg2QKjTp_Soydx8-81KwM3MSLkIIlwrbgAXvH4VC7F05GG9D552vSsfbpHtghiHB5SkhijviPqpb1d7ToyZZBZRMjEbkwP1IPNTRIOwrC8rPgg4eJW0EqSCCzLrJHSNz8FdoNu7IMNrBKLNVP1DJOjOTcy4iIvGHCPDL8X2LR1ZbQ"/>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SideNavBar -->
+    <aside id="side-nav" class="fixed left-0 top-0 h-full w-64 bg-slate-100 dark:bg-slate-950 flex flex-col pt-24 pb-8 px-4 border-r border-slate-200/50 font-medium z-40 hidden-view">
+        <div class="mb-8 px-2">
+            <div class="flex items-center gap-3 mb-1">
+                <div class="w-8 h-8 bg-primary-container rounded flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary-fixed text-lg" style="font-variation-settings: 'FILL' 1;">visibility</span>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-indigo-900 leading-tight">Clinical Ops</h3>
+                    <p class="text-[10px] text-on-surface-variant tracking-widest uppercase">V1.0.4</p>
+                </div>
+            </div>
+        </div>
+        <nav class="space-y-1 flex-1">
+            <a class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-200 hover:translate-x-1 transition-transform duration-200 rounded-lg cursor-pointer">
+                <span class="material-symbols-outlined text-[20px]">settings</span>
+                <span>Settings</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-200 hover:translate-x-1 transition-transform duration-200 rounded-lg cursor-pointer">
+                <span class="material-symbols-outlined text-[20px]">description</span>
+                <span>Reports</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-200 hover:translate-x-1 transition-transform duration-200 rounded-lg cursor-pointer">
+                <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+                <span>Administration</span>
+            </a>
+        </nav>
+        <button onclick="showUpload()" class="mt-auto clinical-gradient text-white flex items-center justify-center gap-2 py-3 mx-2 rounded-xl font-bold shadow-lg shadow-surface-tint/20 active:scale-95 duration-100">
+            <span class="material-symbols-outlined">add</span>
+            New Screening
+        </button>
+    </aside>
+
+    <!-- VIEWS CONTAINER -->
+    <div class="ml-64 pt-24 px-12 pb-12 min-h-screen relative" id="main-content-area">
+
+        <!-- ============================================== -->
+        <!-- VIEW 0: AUTHENTICATION                         -->
+        <!-- ============================================== -->
+        <main id="view-auth" class="max-w-md mx-auto mt-24 bg-surface-container-lowest p-8 rounded-3xl shadow-lg border border-outline-variant/10 hidden-view">
+            <h2 class="text-3xl font-black text-primary tracking-tighter mb-2" id="auth-title">Welcome Back</h2>
+            <p class="text-on-surface-variant mb-6 text-sm" id="auth-subtitle">Sign in to access patient screenings.</p>
+            
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="flex flex-col gap-4">
+                <input type="text" id="auth-name" placeholder="Full Name" class="hidden rounded-xl border-outline-variant focus:ring-primary-container px-4 py-3 bg-surface-container-low" />
+                <input type="email" id="auth-email" placeholder="Doctor Email" required class="rounded-xl border-outline-variant focus:ring-primary-container px-4 py-3 bg-surface-container-low" />
+                <input type="password" id="auth-password" placeholder="Password" required class="rounded-xl border-outline-variant focus:ring-primary-container px-4 py-3 bg-surface-container-low" />
+                
+                <button type="submit" class="mt-4 bg-primary-container text-white py-3 rounded-xl font-bold hover:bg-primary-fixed hover:text-on-primary-fixed transition shadow-md">
+                    <span id="auth-btn-text">Sign In</span>
+                </button>
+            </form>
+            
+            <p class="mt-6 text-center text-sm text-on-surface-variant">
+                <span id="auth-switch-text">Don't have an account?</span> 
+                <a href="#" onclick="toggleAuthMode()" class="font-bold text-teal-600 hover:underline" id="auth-switch-action">Sign up</a>
+            </p>
+        </main>
+
+        <!-- ============================================== -->
+        <!-- VIEW 1: DASHBOARD                              -->
+        <!-- ============================================== -->
+        <main id="view-dashboard" class="max-w-7xl mx-auto hidden-view">
+            <header class="mb-12 flex justify-between items-end">
+                <div>
+                    <h1 class="text-5xl font-black text-on-surface tracking-tighter mb-2">Diagnostic Dashboard</h1>
+                    <p class="text-on-surface-variant text-lg">Real-time diabetic retinopathy screening overview.</p>
+                </div>
+                <div class="flex gap-4">
+                    <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/10 shadow-sm flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center">
+                            <span class="material-symbols-outlined text-on-primary-fixed">verified</span>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold">AI System Status</p>
+                            <p class="text-sm font-bold text-on-primary-container">Operational (99.1% Acc.)</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                <div class="bg-surface-container-lowest p-8 rounded-2xl flex flex-col justify-between h-48 group hover:bg-primary-container transition-colors duration-300">
+                    <span class="material-symbols-outlined text-on-primary-container group-hover:text-primary-fixed">groups</span>
+                    <div>
+                        <h4 id="stat-total" class="text-4xl font-black text-on-surface group-hover:text-white">0</h4>
+                        <p class="text-sm font-medium text-on-surface-variant group-hover:text-on-primary-container">Total Screenings</p>
+                    </div>
+                </div>
+                <div class="bg-surface-container-lowest p-8 rounded-2xl flex flex-col justify-between h-48 border-l-4 border-error">
+                    <span class="material-symbols-outlined text-error">warning</span>
+                    <div>
+                        <h4 id="stat-flagged" class="text-4xl font-black text-on-surface">0</h4>
+                        <p class="text-sm font-medium text-on-surface-variant">Flagged (Mod/Sev)</p>
+                    </div>
+                </div>
+                <div class="bg-surface-container-lowest p-8 rounded-2xl flex flex-col justify-between h-48">
+                    <span class="material-symbols-outlined text-secondary">pending_actions</span>
+                    <div>
+                        <h4 id="stat-pending" class="text-4xl font-black text-on-surface">0</h4>
+                        <p class="text-sm font-medium text-on-surface-variant">Pending Reviews</p>
+                    </div>
+                </div>
+                <div class="bg-primary-container p-8 rounded-2xl flex flex-col justify-between h-48">
+                    <span class="material-symbols-outlined text-primary-fixed">monitoring</span>
+                    <div>
+                        <h4 class="text-4xl font-black text-white">99.1%</h4>
+                        <p class="text-sm font-medium text-on-primary-container">AI Confidence Avg</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-12 gap-8">
+                <div class="col-span-12 lg:col-span-8">
+                    <div class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm">
+                        <div class="px-8 py-6 flex justify-between items-center bg-surface-container-low/30">
+                            <h2 class="text-xl font-extrabold tracking-tight">Recent Patient Screenings</h2>
+                            <button class="text-sm font-bold text-on-primary-container flex items-center gap-1">
+                                View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-surface-container-low text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
+                                    <tr>
+                                        <th class="px-8 py-4">Patient ID / Name</th>
+                                        <th class="px-6 py-4">Date</th>
+                                        <th class="px-6 py-4">Clinical Status</th>
+                                        <th class="px-6 py-4">AI Score</th>
+                                        <th class="px-8 py-4 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="screenings-table-body" class="divide-y divide-surface-container">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-12 lg:col-span-4 flex flex-col gap-8">
+                    <!-- CTA -->
+                    <div class="bg-primary-container text-white p-8 rounded-3xl relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <h3 class="text-2xl font-bold mb-4 leading-tight">Initiate New Retina Screening</h3>
+                            <p class="text-on-primary-container text-sm mb-8">Upload ultra-widefield fundus images or OCT scans for immediate AI analysis.</p>
+                            <button onclick="showUpload()" class="w-full bg-primary-fixed text-on-primary-fixed py-4 rounded-xl font-black text-sm tracking-widest uppercase hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 shadow-2xl shadow-black/20">
+                                <span class="material-symbols-outlined">cloud_upload</span>
+                                Upload Scan
+                            </button>
+                        </div>
+                        <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-on-primary-container/10 rounded-full blur-3xl group-hover:bg-on-primary-container/20 transition-colors"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ============================================== -->
+        <!-- VIEW 2: UPLOAD                                 -->
+        <!-- ============================================== -->
+        <main id="view-upload" class="max-w-6xl mx-auto hidden-view">
+            <header class="mb-12">
+                <p class="text-xs font-bold text-on-primary-container tracking-[0.15em] uppercase mb-2">Diagnostic Intake</p>
+                <h1 class="text-5xl font-black text-primary tracking-tighter leading-none mb-4">Retinal Fundus Upload</h1>
+                <p class="text-on-surface-variant max-w-xl text-lg leading-relaxed">
+                    Upload high-resolution scans for neural network processing. Our clinical AI analyzes retinal vasculature in real-time.
+                </p>
+            </header>
+
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Upload / Process Column -->
+                <div class="col-span-12 lg:col-span-8 flex flex-col gap-6">
+                    <!-- Drop Zone -->
+                    <div id="drop-zone" class="relative group bg-surface-container-lowest rounded-2xl p-12 border-2 border-dashed border-outline-variant/30 hover:border-on-primary-container/50 transition-all duration-300 flex flex-col items-center justify-center text-center cursor-pointer overflow-hidden">
+                        <input type="file" id="file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" accept="image/*"/>
+                        <div class="absolute inset-0 bg-primary-fixed/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative z-10">
+                            <div class="w-20 h-20 bg-surface-container-high rounded-full flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-4xl text-on-primary-container">cloud_upload</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-on-surface mb-2">Drop clinical images here</h3>
+                            <p class="text-on-surface-variant mb-8 max-w-xs mx-auto">Supports DICOM, high-res JPG, and lossless PNG formats from fundus cameras.</p>
+                            <div class="flex flex-wrap justify-center gap-3 pointer-events-none">
+                                <button class="bg-on-primary-container text-white px-8 py-3 rounded-full font-bold transition-all shadow-xl">
+                                    Select Files
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Processing Container -->
+                    <div id="processing-view" class="bg-tertiary-container rounded-2xl p-8 text-white relative overflow-hidden shadow-2xl hidden-view">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-on-primary-container/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-on-primary-container/20 rounded-lg flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-on-primary-container animate-pulse">biotech</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg">AI Analyzing Retinal Vasculature...</h4>
+                                        <p class="text-on-tertiary-container text-sm">Vitreous Neural Engine v4.2</p>
+                                    </div>
+                                </div>
+                                <span class="text-2xl font-black text-on-primary-container" id="process-percentage">0%</span>
+                            </div>
+                            
+                            <div class="w-full h-3 bg-white/5 rounded-full mb-8 overflow-hidden">
+                                <div id="process-fill" class="h-full bg-on-primary-container clinical-gradient-primary rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-4">
+                                    <span class="material-symbols-outlined text-on-primary-container text-sm">check_circle</span>
+                                    <span class="text-sm font-medium">Image Pre-processing & Noise Reduction</span>
+                                    <div class="h-px flex-1 bg-white/5"></div>
+                                    <span class="text-[10px] text-on-tertiary-container uppercase tracking-widest">Complete</span>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span class="w-2 h-2 rounded-full bg-on-primary-container animate-ping"></span>
+                                    <span class="text-sm font-medium">Mapping Microvascular Architecture</span>
+                                    <div class="h-px flex-1 bg-white/5"></div>
+                                    <span class="text-[10px] text-on-primary-container uppercase tracking-widest">In Progress</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+                    <!-- File Preview Card -->
+                    <div id="preview-card" class="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-outline-variant/10 hidden-view">
+                        <div class="aspect-square w-full relative group bg-black">
+                            <img id="preview-img" alt="Preview" class="w-full h-full object-cover" src=""/>
+                            <div class="absolute bottom-4 left-4">
+                                <span class="bg-primary-container/80 backdrop-blur-md text-primary-fixed text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">OS | Left Eye</span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h4 id="preview-filename" class="font-bold text-lg text-primary mb-1">SCAN_LEFT.dcm</h4>
+                            <p class="text-on-surface-variant text-sm mb-6">Uploaded just now</p>
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Patient Reference</p>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-xs text-on-secondary-container">person</span>
+                                        </div>
+                                        <span class="font-medium text-sm">Elena Rodriguez (ID: 88-301)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Result FAB Nav -->
+            <div id="fab-results" class="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-surface-container-lowest shadow-2xl rounded-full px-6 py-4 border border-outline-variant/20 hidden-view">
+                <span class="flex h-3 w-3 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-on-primary-container opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-on-primary-container"></span>
+                </span>
+                <span class="text-sm font-bold text-on-surface">Analysis successfully completed!</span>
+                <button onclick="showResults()" class="bg-on-primary-container text-white px-6 py-2 rounded-full font-bold text-sm ml-4 transition-transform active:scale-95 shadow-md">
+                    View Findings
+                </button>
+            </div>
+        </main>
+
+        <!-- ============================================== -->
+        <!-- VIEW 3: RESULTS                                -->
+        <!-- ============================================== -->
+        <main id="view-results" class="max-w-6xl mx-auto hidden-view">
+            <header class="mb-12 flex justify-between items-end">
+                <div>
+                    <p class="text-xs font-bold text-on-surface-variant tracking-[0.15em] uppercase mb-2">PATIENT PROFILE > ID: 88291-B</p>
+                    <h1 class="text-5xl font-black text-on-surface tracking-tighter mb-2">Analysis Results</h1>
+                </div>
+                <div class="flex gap-4">
+                    <button class="px-6 py-3 rounded-xl border border-outline-variant bg-surface-container-lowest font-bold text-on-surface hover:bg-surface-container-low transition">Print Report</button>
+                    <button class="px-6 py-3 rounded-xl bg-primary-container text-white font-bold hover:bg-primary-fixed hover:text-on-primary-fixed transition">Add to Record</button>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-12 gap-8">
+                <div class="col-span-12 lg:col-span-8 flex flex-col gap-6">
+                    <div class="bg-black rounded-3xl overflow-hidden relative shadow-2xl border border-outline-variant/20">
+                        <img id="result-overlay" class="w-full object-contain max-h-[600px]" src="" alt="Heatmap Overlay">
+                        <div class="absolute bottom-6 left-6 bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-xl max-w-sm border border-outline-variant/20">
+                            <div class="text-error font-black text-[10px] tracking-widest mb-1 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span> ANOMALY DETECTED
+                            </div>
+                            <h4 class="font-bold text-lg text-on-surface mb-1">Microvascular Disturbance</h4>
+                            <p id="result-message" class="text-on-surface-variant text-sm font-medium leading-relaxed"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-error-container/30 border border-error-container p-6 rounded-2xl flex items-start gap-4">
+                        <span class="material-symbols-outlined text-error">info</span>
+                        <div>
+                            <strong class="text-error font-bold block mb-1">AI-assisted screening. Not a final diagnosis.</strong>
+                            <p class="text-error/80 text-sm font-medium">The Vitreous AI algorithm provides preliminary observations based on uploaded fundus imagery. This report must be reviewed and validated by a licensed specialist before clinical action is taken.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+                    <div class="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/10 shadow-sm">
+                        <p class="text-[10px] font-black tracking-widest text-on-surface-variant uppercase mb-3">Diagnostic Summary</p>
+                        <h2 id="result-severity" class="text-4xl font-black text-on-surface leading-tight mb-4 tracking-tight"></h2>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div id="risk-badge" class="px-3 py-1.5 rounded-full font-bold text-xs uppercase tracking-wider"></div>
+                            <span id="result-class-id" class="text-xs text-on-surface-variant font-bold bg-slate-200 px-2 py-1 rounded"></span>
+                        </div>
+                        <p class="text-[10px] text-on-surface-variant font-medium uppercase tracking-widest mb-8">Vitreous Neural Engine v4</p>
+                        
+                        <div class="h-px bg-outline-variant/30 w-full mb-8"></div>
+                        
+                        <p class="text-[10px] font-black tracking-widest text-on-surface-variant uppercase mb-2">AI Confidence</p>
+                        <h3 id="result-confidence" class="text-5xl font-black text-primary-fixed-dim tracking-tighter mb-4"></h3>
+                        <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden mb-8">
+                            <div id="confidence-bar" class="h-full bg-primary-fixed-dim rounded-full" style="width: 0%"></div>
+                        </div>
+
+                        <button class="w-full bg-primary-container text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary-fixed hover:text-on-primary-fixed transition shadow-lg">
+                            <span>Refer to Specialist</span>
+                            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>

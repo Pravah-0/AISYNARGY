@@ -1,0 +1,167 @@
+/* Vitreous AI Custom CSS */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif !important;
+    background-color: #f8fafc !important;
+    color: #111827;
+}
+
+/* Sidebar Styling */
+section[data-testid="stSidebar"] {
+    background-color: #ffffff !important;
+    border-right: 1px solid #e2e8f0;
+}
+section[data-testid="stSidebar"] [data-testid="stSidebarNav"] {
+    display: none;
+}
+
+/* Top Nav styling fixes */
+header[data-testid="stHeader"] {
+    display: none !important; /* Hide default header */
+}
+
+/* Remove main padding for custom top-nav */
+.block-container {
+    padding-top: 0rem !important;
+    padding-left: 0rem !important;
+    padding-right: 0rem !important;
+    padding-bottom: 2rem !important;
+    max-width: 100% !important;
+}
+
+/* Typography */
+h1 {
+    font-weight: 900 !important;
+    letter-spacing: -0.05em;
+    color: #111827;
+    margin-bottom: 0.2rem !important;
+}
+p {
+    color: #64748b;
+}
+
+/* Cards */
+.v-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+}
+.v-card-danger {
+    border-left: 4px solid #ef4444;
+}
+.v-card-dark {
+    background-color: #0d2825;
+    color: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+.v-card-dark p, .v-card-dark h3 {
+    color: #f8fafc !important;
+}
+
+/* Badges */
+.v-badge {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-block;
+}
+.badge-success { background: #dcfce7; color: #166534; }
+.badge-danger { background: #fee2e2; color: #b91c1c; }
+.badge-warning { background: #fef9c3; color: #854d0e; }
+.badge-purple { background: #e0e7ff; color: #4338ca; }
+
+/* Status */
+.op-status {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #15803d;
+    font-weight: 600;
+    text-align: right;
+    display: inline-block;
+    float: right;
+}
+
+/* Upload Dropzone styling wrapper */
+.stFileUploader {
+    background-color: #ffffff;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+}
+.stFileUploader div[data-testid="stMarkdownContainer"] p {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 1.1rem;
+}
+
+/* Buttons */
+.stButton > button {
+    background-color: #0d9488 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    border: none !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+.stButton > button:hover {
+    background-color: #0f766e !important;
+}
+
+/* Custom Nav bar */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+.nav-links a {
+    text-decoration: none;
+    color: #64748b;
+    font-weight: 600;
+    margin-right: 24px;
+    padding-bottom: 19px;
+    font-size: 0.95rem;
+}
+.nav-links a.active {
+    color: #0d9488;
+    border-bottom: 3px solid #0d9488;
+}
+
+/* Table styling */
+.v-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.v-table th {
+    text-align: left;
+    padding: 12px;
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-bottom: 2px solid #f1f5f9;
+}
+.v-table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+/* Fix Streamlit column gaps */
+div[data-testid="column"] {
+    padding: 0 12px;
+}

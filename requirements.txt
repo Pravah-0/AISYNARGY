@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+streamlit
+torch
+torchvision
+opencv-python
+numpy
+Pillow
+python-multipart
+timm
+huggingface_hub
+transformers
+scipy
+sqlalchemy
+bcrypt
+python-jose
