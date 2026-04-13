@@ -96,9 +96,9 @@
         <div class="flex items-center gap-12">
             <span class="text-2xl font-black text-indigo-900 dark:text-indigo-100 tracking-tighter cursor-pointer" onclick="showDashboard()">Retina Ai - Sight Decoded</span>
             <div class="hidden md:flex gap-8 nav-buttons">
-                <a id="nav-dashboard" class="text-teal-700 font-bold border-b-2 border-teal-600 pb-1 cursor-pointer" onclick="showDashboard()">Dashboard</a>
-                <a class="text-slate-500 hover:text-teal-600 transition-colors cursor-pointer">Patients</a>
-                <a class="text-slate-500 hover:text-teal-600 transition-colors cursor-pointer">History</a>
+                <a id="nav-dashboard" class="text-slate-500 hover:text-teal-600 transition-colors pb-1 cursor-pointer font-medium" onclick="showDashboard()">Dashboard</a>
+                <a id="nav-patients" class="text-slate-500 hover:text-teal-600 transition-colors pb-1 cursor-pointer font-medium" onclick="showPatients()">Patients</a>
+                <a id="nav-history" class="text-slate-500 hover:text-teal-600 transition-colors pb-1 cursor-pointer font-medium" onclick="showHistory()">History</a>
             </div>
         </div>
         <div class="flex items-center gap-4">
@@ -510,6 +510,172 @@
                 </p>
             </div>
         </div>
+
+        <!-- ============================================== -->
+        <!-- VIEW 4: PATIENTS                               -->
+        <!-- ============================================== -->
+        <main id="view-patients" class="max-w-7xl mx-auto hidden-view">
+            <header class="mb-10 flex justify-between items-end">
+                <div>
+                    <h1 class="text-5xl font-black text-on-surface tracking-tighter mb-2">Patient Registry</h1>
+                    <p class="text-on-surface-variant text-lg">All unique patients in your screening records.</p>
+                </div>
+                <div class="flex gap-3 items-center">
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                        <input id="patients-search" oninput="filterPatients()" class="bg-surface-container-lowest border border-outline-variant/30 rounded-full pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-on-primary-container w-64 shadow-sm" placeholder="Search patients..." type="text"/>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Bar -->
+            <div class="grid grid-cols-3 gap-4 mb-10" id="patients-stats">
+                <div class="bg-surface-container-lowest rounded-2xl p-6 flex items-center gap-4 border border-outline-variant/10 shadow-sm">
+                    <div class="w-12 h-12 bg-primary-container/20 rounded-xl flex items-center justify-center">
+                        <span class="material-symbols-outlined text-on-primary-container">group</span>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-0.5">Total Patients</p>
+                        <h3 id="patients-stat-total" class="text-3xl font-black text-on-surface">0</h3>
+                    </div>
+                </div>
+                <div class="bg-surface-container-lowest rounded-2xl p-6 flex items-center gap-4 border border-outline-variant/10 shadow-sm">
+                    <div class="w-12 h-12 bg-error/10 rounded-xl flex items-center justify-center">
+                        <span class="material-symbols-outlined text-error">warning</span>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-0.5">High Risk</p>
+                        <h3 id="patients-stat-high" class="text-3xl font-black text-on-surface">0</h3>
+                    </div>
+                </div>
+                <div class="bg-surface-container-lowest rounded-2xl p-6 flex items-center gap-4 border border-outline-variant/10 shadow-sm">
+                    <div class="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center">
+                        <span class="material-symbols-outlined text-secondary">biotech</span>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-0.5">Total Screenings</p>
+                        <h3 id="patients-stat-screenings" class="text-3xl font-black text-on-surface">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patient Cards Grid -->
+            <div id="patients-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Populated by JS -->
+            </div>
+        </main>
+
+        <!-- ============================================== -->
+        <!-- VIEW 5: HISTORY                                -->
+        <!-- ============================================== -->
+        <main id="view-history" class="max-w-7xl mx-auto hidden-view">
+            <header class="mb-10 flex justify-between items-end">
+                <div>
+                    <h1 class="text-5xl font-black text-on-surface tracking-tighter mb-2">Screening History</h1>
+                    <p class="text-on-surface-variant text-lg">Complete log of all diagnostic screenings.</p>
+                </div>
+                <div class="flex gap-3 items-center">
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                        <input id="history-search" oninput="filterHistory()" class="bg-surface-container-lowest border border-outline-variant/30 rounded-full pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-on-primary-container w-64 shadow-sm" placeholder="Search records..." type="text"/>
+                    </div>
+                    <select id="history-risk-filter" onchange="filterHistory()" class="bg-surface-container-lowest border border-outline-variant/30 rounded-full px-4 py-2.5 text-sm focus:ring-2 focus:ring-on-primary-container shadow-sm font-medium">
+                        <option value="">All Risk Levels</option>
+                        <option value="High">High Risk</option>
+                        <option value="Moderate">Moderate Risk</option>
+                        <option value="Low">Low Risk</option>
+                    </select>
+                </div>
+            </header>
+
+            <!-- Summary chips -->
+            <div class="flex gap-3 mb-8" id="history-chips">
+                <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-full px-5 py-2 text-sm font-bold text-on-surface-variant flex items-center gap-2 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-on-primary-container inline-block"></span>
+                    <span id="history-count-label">0 records</span>
+                </div>
+            </div>
+
+            <!-- Full History Table -->
+            <div class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm border border-outline-variant/10">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-surface-container-low text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
+                            <tr>
+                                <th class="px-8 py-4">Patient ID / Name</th>
+                                <th class="px-6 py-4">Date &amp; Time</th>
+                                <th class="px-6 py-4">Clinical Status</th>
+                                <th class="px-6 py-4">Risk Level</th>
+                                <th class="px-6 py-4">AI Score</th>
+                                <th class="px-8 py-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-surface-container">
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Empty state -->
+                <div id="history-empty" class="hidden-view py-24 text-center">
+                    <span class="material-symbols-outlined text-5xl text-on-surface-variant/30 block mb-4">history</span>
+                    <p class="text-on-surface-variant font-semibold">No screening records found.</p>
+                    <p class="text-on-surface-variant/60 text-sm mt-1">Try adjusting your filters or perform a new screening.</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- ============================================== -->
+        <!-- MODAL: SCREENING DETAIL                        -->
+        <!-- ============================================== -->
+        <div id="modal-overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] hidden-view flex items-center justify-center p-6" onclick="closeModal(event)">
+            <div id="modal-panel" class="bg-surface-container-lowest rounded-3xl shadow-2xl border border-outline-variant/20 w-full max-w-3xl max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+                <div class="p-8">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <p class="text-[10px] font-bold text-on-surface-variant tracking-[0.15em] uppercase mb-1">SCREENING RECORD</p>
+                            <h2 id="modal-patient-id" class="text-3xl font-black text-on-surface tracking-tighter"></h2>
+                            <p id="modal-patient-name" class="text-on-surface-variant font-medium mt-0.5"></p>
+                        </div>
+                        <button onclick="closeModal()" class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center hover:bg-surface-container transition-colors">
+                            <span class="material-symbols-outlined text-on-surface-variant">close</span>
+                        </button>
+                    </div>
+
+                    <!-- Heatmap -->
+                    <div id="modal-image-wrap" class="bg-black rounded-2xl overflow-hidden mb-6 relative">
+                        <img id="modal-heatmap" class="w-full object-contain max-h-80" src="" alt="AI Heatmap"/>
+                        <div id="modal-no-image" class="hidden-view h-48 flex flex-col items-center justify-center text-white/40">
+                            <span class="material-symbols-outlined text-4xl mb-2">image_not_supported</span>
+                            <p class="text-sm font-medium">Heatmap not available for this record</p>
+                        </div>
+                    </div>
+
+                    <!-- Result details -->
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-surface-container-low rounded-2xl p-5">
+                            <p class="text-[10px] font-black tracking-widest text-on-surface-variant uppercase mb-1">Diagnosis</p>
+                            <h3 id="modal-severity" class="text-2xl font-black text-on-surface tracking-tight"></h3>
+                            <div id="modal-risk-badge" class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"></div>
+                        </div>
+                        <div class="bg-surface-container-low rounded-2xl p-5">
+                            <p class="text-[10px] font-black tracking-widest text-on-surface-variant uppercase mb-1">AI Confidence</p>
+                            <h3 id="modal-confidence" class="text-2xl font-black text-on-primary-container tracking-tight"></h3>
+                            <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden mt-3">
+                                <div id="modal-confidence-bar" class="h-full bg-on-primary-container rounded-full transition-all duration-500" style="width:0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-surface-container-low rounded-2xl p-5 mb-6">
+                        <p class="text-[10px] font-black tracking-widest text-on-surface-variant uppercase mb-2">Clinical Observations</p>
+                        <p id="modal-message" class="text-on-surface text-sm font-medium leading-relaxed"></p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="closeModal()" class="flex-1 py-3 rounded-xl border border-outline-variant bg-surface-container-lowest font-bold text-on-surface hover:bg-surface-container-low transition text-sm">Close</button>
+                        <button id="modal-pdf-btn" class="flex-1 py-3 rounded-xl bg-primary-container text-white font-bold hover:bg-primary-fixed hover:text-on-primary-fixed transition text-sm">Print Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script src="main.js"></script>

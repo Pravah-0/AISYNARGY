@@ -119,6 +119,7 @@ async def predict_endpoint(file: UploadFile = File(...), patient_name: str = For
             risk=results["risk"],
             confidence=results["confidence"],
             message=results["message"],
+            overlay=results.get("overlay"),
             doctor_id=None if is_patient else current_user.id,
             patient_user_id=current_user.id if is_patient else None
         )
