@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, Float, ForeignKey, DateTime
+from sqlalchemy import Boolean, Column, Integer, String, Float, ForeignKey, DateTime, Text
 from sqlalchemy.orm import relationship
 import datetime
 
@@ -29,6 +29,7 @@ class Screening(Base):
     risk = Column(String)
     confidence = Column(Float)
     message = Column(String)
+    overlay = Column(Text, nullable=True)
     
     doctor_id = Column(Integer, ForeignKey("users.id"))
     doctor = relationship("User", foreign_keys=[doctor_id], back_populates="screenings")
