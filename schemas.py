@@ -9,6 +9,7 @@ class ScreeningBase(BaseModel):
     risk: str
     confidence: float
     message: str
+    overlay: Optional[str] = None
 
 class ScreeningCreate(ScreeningBase):
     pass
